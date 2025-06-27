@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Mic, MicOff, Sparkles, Bot, User } from 'lucide-react';
+import { Send, Sparkles, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ChatMessage from './ChatMessage';
@@ -9,7 +9,7 @@ const ChatBot = () => {
   const [messages, setMessages] = useState([
     {
       id: '1',
-      text: "Hey there! 👋 I'm your AI bestie! What's on your mind today? ✨",
+      text: "Hey there! 👋 Ask me any country and I'll tell you its capital! 🌍",
       isUser: false,
       timestamp: new Date()
     }
@@ -27,23 +27,6 @@ const ChatBot = () => {
     scrollToBottom();
   }, [messages]);
 
-  const generateBotResponse = () => {
-    const responses = [
-      "That's so interesting! Tell me more about that! 🤔",
-      "OMG yes! I totally get what you mean! ✨",
-      "No cap, that sounds amazing! 🔥",
-      "Slay! You're absolutely right about that! 💅",
-      "That hits different, not gonna lie! 😎",
-      "Period! You spilled facts right there! 💯",
-      "I'm living for this energy right now! ⚡",
-      "This is giving main character vibes! 👑",
-      "Bestie, you're speaking my language! 💖",
-      "That's bussin! Keep going! 🚀"
-    ];
-
-    return responses[Math.floor(Math.random() * responses.length)];
-  };
-
   const handleSendMessage = async (text) => {
     if (!text.trim()) return;
 
@@ -58,16 +41,34 @@ const ChatBot = () => {
     setInputText('');
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      const res = await fetch('http://localhost:5000/api/chat/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text.trim() })
+      });
+
+      const data = await res.json();
+
       const botMessage = {
         id: (Date.now() + 1).toString(),
-        text: generateBotResponse(text),
+        text: data.reply || "Hmm... I’m thinking 🤔",
         isUser: false,
         timestamp: new Date()
       };
+
       setMessages(prev => [...prev, botMessage]);
-      setIsLoading(false);
-    }, 1000 + Math.random() * 2000);
+    } catch (error) {
+      console.error(error);
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 2).toString(),
+        text: "Oops! Something went wrong 🥲",
+        isUser: false,
+        timestamp: new Date()
+      }]);
+    }
+
+    setIsLoading(false);
   };
 
   const handleVoiceInput = (transcript) => {
@@ -91,12 +92,13 @@ const ChatBot = () => {
             <Sparkles className="w-4 h-4 text-yellow-300 absolute -top-1 -right-1 animate-bounce" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">AI Edumeup</h1>
+            <h1 className="text-2xl font-bold text-white">AI Bestie</h1>
+            <p className="text-white/80 text-sm">Ask for any capital 🌍</p>
           </div>
         </div>
       </div>
 
-      {/* Messages Container */}
+      {/* Messages */}
       <div className="flex-1 overflow-hidden bg-white/5 backdrop-blur-lg rounded-2xl border border-white/20 mb-4">
         <div className="h-full overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
           {messages.map((message) => (
@@ -117,18 +119,16 @@ const ChatBot = () => {
         </div>
       </div>
 
-      {/* Input Container */}
+      {/* Input */}
       <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-4">
         <form onSubmit={handleSubmit} className="flex items-center gap-3">
-          <div className="flex-1 relative">
-            <Input
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder="Type your message... or use voice! 🎙️"
-              className="bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-xl pr-4 pl-4 py-3 focus:bg-white/30 transition-all duration-300"
-              disabled={isLoading}
-            />
-          </div>
+          <Input
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            placeholder="Type country name... or use voice! 🎙️"
+            className="bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-xl pr-4 pl-4 py-3 focus:bg-white/30 transition-all duration-300"
+            disabled={isLoading}
+          />
 
           <VoiceRecorder
             onVoiceInput={handleVoiceInput}
