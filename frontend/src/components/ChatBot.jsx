@@ -8,7 +8,7 @@ import VoiceRecorder from './VoiceRecorder';
 const ChatBot = () => {
   const [messages, setMessages] = useState([
     {
-      id: '1',
+      id: crypto.randomUUID(),
       text: "Hey there! 👋 Ask me any country and I'll tell you its capital! 🌍",
       isUser: false,
       timestamp: new Date()
@@ -19,30 +19,26 @@ const ChatBot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const handleSendMessage = async (text) => {
     if (!text.trim()) return;
 
     const userMessage = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       text: text.trim(),
       isUser: true,
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputText('');
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/chat/message', {
+      const res = await fetch('http://localhost:5000/api/chatbot/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text.trim() })
@@ -51,21 +47,24 @@ const ChatBot = () => {
       const data = await res.json();
 
       const botMessage = {
-        id: (Date.now() + 1).toString(),
-        text: data.reply || "Hmm... I’m thinking 🤔",
+        id: crypto.randomUUID(),
+        text: data?.reply || "Hmm... I’m thinking 🤔",
         isUser: false,
         timestamp: new Date()
       };
 
-      setMessages(prev => [...prev, botMessage]);
+      setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
-      console.error(error);
-      setMessages(prev => [...prev, {
-        id: (Date.now() + 2).toString(),
-        text: "Oops! Something went wrong 🥲",
-        isUser: false,
-        timestamp: new Date()
-      }]);
+      console.error('Error communicating with chatbot:', error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          text: "Oops! Something went wrong 🥲",
+          isUser: false,
+          timestamp: new Date()
+        }
+      ]);
     }
 
     setIsLoading(false);
@@ -84,7 +83,6 @@ const ChatBot = () => {
 
   return (
     <div className="w-screen h-screen flex flex-col bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 p-2 sm:p-4 overflow-hidden">
-      {/* Header */}
       <div className="flex items-center justify-center mb-4 p-4 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20">
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -98,7 +96,6 @@ const ChatBot = () => {
         </div>
       </div>
 
-      {/* Messages */}
       <div className="flex-1 overflow-hidden bg-white/5 backdrop-blur-lg rounded-2xl border border-white/20 mb-4">
         <div className="h-full overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
           {messages.map((message) => (
@@ -109,8 +106,8 @@ const ChatBot = () => {
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 max-w-xs">
                 <div className="flex items-center gap-1">
                   <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce delay-100"></div>
+                  <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce delay-200"></div>
                 </div>
               </div>
             </div>
@@ -119,13 +116,12 @@ const ChatBot = () => {
         </div>
       </div>
 
-      {/* Input */}
       <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-4">
         <form onSubmit={handleSubmit} className="flex items-center gap-3">
           <Input
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="Type country name... or use voice! 🎙️"
+            placeholder="Type country name... or use voice! 🎧"
             className="bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-xl pr-4 pl-4 py-3 focus:bg-white/30 transition-all duration-300"
             disabled={isLoading}
           />
