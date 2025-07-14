@@ -9,13 +9,12 @@ const ChatBot = () => {
   const [messages, setMessages] = useState([
     {
       id: crypto.randomUUID(),
-      text: "Hey there! 👋 Ask me any country and I'll tell you its capital! 🌍",
+      text: "Hey there! 👋 Ask me anything — I'm your AI Bestie 🤖",
       isUser: false,
       timestamp: new Date()
     }
   ]);
   const [inputText, setInputText] = useState('');
-  const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
@@ -38,17 +37,17 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/chatbot/message', {
+      const res = await fetch('https://monkfish-app-mqs59.ondigitalocean.app/ask-question/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text.trim() })
+        body: JSON.stringify({ question: text.trim() })
       });
 
       const data = await res.json();
 
       const botMessage = {
         id: crypto.randomUUID(),
-        text: data?.reply || "Hmm... I’m thinking 🤔",
+        text: data?.answer || "Hmm... I couldn't find an answer 🧐",
         isUser: false,
         timestamp: new Date()
       };
@@ -70,11 +69,7 @@ const ChatBot = () => {
     setIsLoading(false);
   };
 
-  const handleVoiceInput = (transcript) => {
-    if (transcript) {
-      handleSendMessage(transcript);
-    }
-  };
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -90,8 +85,8 @@ const ChatBot = () => {
             <Sparkles className="w-4 h-4 text-yellow-300 absolute -top-1 -right-1 animate-bounce" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">AI Bestie</h1>
-            <p className="text-white/80 text-sm">Ask for any capital 🌍</p>
+            <h1 className="text-2xl font-bold text-white">AI Edume</h1>
+            <p className="text-white/80 text-sm">Smart answers powered by Edumeup 🌐</p>
           </div>
         </div>
       </div>
@@ -121,16 +116,11 @@ const ChatBot = () => {
           <Input
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="Type country name... or use voice! 🎧"
+            placeholder="Ask me anything... "
             className="bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-xl pr-4 pl-4 py-3 focus:bg-white/30 transition-all duration-300"
             disabled={isLoading}
           />
 
-          <VoiceRecorder
-            onVoiceInput={handleVoiceInput}
-            isListening={isListening}
-            setIsListening={setIsListening}
-          />
 
           <Button
             type="submit"
