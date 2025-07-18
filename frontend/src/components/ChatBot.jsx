@@ -37,7 +37,7 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch('https://monkfish-app-mqs59.ondigitalocean.app/ask-question/11', {
+      const res = await fetch('https://monkfish-app-mqs59.ondigitalocean.app/ask-question/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: text.trim() })
