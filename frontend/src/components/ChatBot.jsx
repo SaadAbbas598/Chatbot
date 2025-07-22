@@ -81,7 +81,7 @@ const ChatBot = () => {
           <Bot className="w-6 h-6 text-blue-400 animate-pulse" />
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Easyway</h1>
-            <p className="text-sm text-gray-400">Powered by xAI</p>
+            <p className="text-sm text-gray-400">Powered by AI</p>
           </div>
         </div>
         <Sparkles className="w-5 h-5 text-yellow-400 animate-spin-slow" />
