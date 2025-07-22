@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/ui/Input';
 import ChatMessage from './ChatMessage';
-import VoiceRecorder from './VoiceRecorder';
 
 const ChatBot = () => {
   const [messages, setMessages] = useState([
@@ -11,8 +10,8 @@ const ChatBot = () => {
       id: crypto.randomUUID(),
       text: "Hey there! 👋 Ask me anything — I'm your AI Bestie 🤖",
       isUser: false,
-      timestamp: new Date()
-    }
+      timestamp: new Date(),
+    },
   ]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +28,7 @@ const ChatBot = () => {
       id: crypto.randomUUID(),
       text: text.trim(),
       isUser: true,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -40,7 +39,7 @@ const ChatBot = () => {
       const res = await fetch('https://monkfish-app-mqs59.ondigitalocean.app/ask-question/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: text.trim() })
+        body: JSON.stringify({ question: text.trim() }),
       });
 
       const data = await res.json();
@@ -49,7 +48,7 @@ const ChatBot = () => {
         id: crypto.randomUUID(),
         text: data?.answer || "Hmm... I couldn't find an answer 🧐",
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, botMessage]);
@@ -61,15 +60,13 @@ const ChatBot = () => {
           id: crypto.randomUUID(),
           text: "Oops! Something went wrong 🥲",
           isUser: false,
-          timestamp: new Date()
-        }
+          timestamp: new Date(),
+        },
       ]);
     }
 
     setIsLoading(false);
   };
-
-
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -77,57 +74,55 @@ const ChatBot = () => {
   };
 
   return (
-    <div className="w-screen h-screen flex flex-col bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 p-2 sm:p-4 overflow-hidden">
-      <div className="flex items-center justify-center mb-4 p-4 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20">
+    <div className="w-screen h-screen flex flex-col bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 bg-gray-900/80 backdrop-blur-md border-b border-gray-700">
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <Bot className="w-8 h-8 text-white animate-pulse" />
-            <Sparkles className="w-4 h-4 text-yellow-300 absolute -top-1 -right-1 animate-bounce" />
-          </div>
+          <Bot className="w-6 h-6 text-blue-400 animate-pulse" />
           <div>
-            <h1 className="text-2xl font-bold text-white">AI Edume</h1>
-            <p className="text-white/80 text-sm">Smart answers powered by Edumeup 🌐</p>
+            <h1 className="text-xl font-semibold tracking-tight">Easyway</h1>
+            <p className="text-sm text-gray-400">Powered by xAI</p>
           </div>
         </div>
+        <Sparkles className="w-5 h-5 text-yellow-400 animate-spin-slow" />
       </div>
 
-      <div className="flex-1 overflow-hidden bg-white/5 backdrop-blur-lg rounded-2xl border border-white/20 mb-4">
-        <div className="h-full overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-          {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
-          ))}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 max-w-xs">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce delay-100"></div>
-                  <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce delay-200"></div>
-                </div>
+      {/* Chat Area */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+        {messages.map((message) => (
+          <ChatMessage key={message.id} message={message} />
+        ))}
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-gray-700/50 rounded-lg p-3 max-w-md">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
               </div>
             </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
       </div>
 
-      <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-4">
-        <form onSubmit={handleSubmit} className="flex items-center gap-3">
+      {/* Input Area */}
+      <div className="p-4 bg-gray-900/80 backdrop-blur-md border-t border-gray-700">
+        <form onSubmit={handleSubmit} className="flex items-center gap-3 max-w-3xl mx-auto">
           <Input
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="Ask me anything... "
-            className="bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-xl pr-4 pl-4 py-3 focus:bg-white/30 transition-all duration-300"
+            placeholder="Ask me anything..."
+            className="flex-1 bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:bg-gray-800 transition-all duration-200"
             disabled={isLoading}
           />
-
-
           <Button
             type="submit"
             disabled={!inputText.trim() || isLoading}
-            className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 rounded-xl px-6 py-3 text-white font-medium transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+            className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-3 transition-all duration-200 disabled:bg-blue-600/50 disabled:cursor-not-allowed"
+            aria-label="Send message"
           >
-            <Send className="w-5 h-5" />
+            <Send className="w-5 h-5 text-black fill-black" />
           </Button>
         </form>
       </div>
